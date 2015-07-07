@@ -1,0 +1,14 @@
+<!-- to be used with hello.world -->
+<day duration="8.345">
+	<event>
+		<start_time value="4.2"/>
+		<duration value="1.4"/>
+		<model name="box"/>
+	</event>
+	<event>
+		<start_time value="2.2"/>
+		<duration value="1.4"/>
+		<model name="cylinder"/>
+		<repeat times="3" every="10"/>
+	</event>
+</day>
