@@ -12,6 +12,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <ros/package.h>
+
 using std::vector;
 using std::string;
 using std::sort;
@@ -38,10 +40,10 @@ namespace gazebo
 			{
 
 				this->world = _parent;
-
 				this->updateConnection = event::Events::ConnectWorldUpdateBegin(boost::bind(&Factory::OnUpdate, this, _1));
 
-				string configName = "events/" + this->world->GetName() + "_config.xml";
+				string packagePath = ros::package::getPath("dynamic_world");
+				string configName = packagePath + "/events/" + this->world->GetName() + "_config.xml";
 
 				Factory::LoadConfig(configName.c_str());
 			}
