@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>dynamic-world</name>
+  <name>dynamic_world</name>
   <version>0.0.0</version>
   <description>Gazebo plugin that models a changing world</description>
 
