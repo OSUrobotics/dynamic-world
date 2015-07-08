@@ -9,6 +9,6 @@
       <uri>model://sun</uri>
     </include>
 
-    <plugin name="gazebo_tutorials" filename="libgazebo_tutorials.so"/>
+    <plugin name="dynamic_world" filename="libdynamic_world.so"/>
   </world>
 </sdf>
