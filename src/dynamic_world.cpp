@@ -12,6 +12,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <cstdlib>
+#include <cstdio>
+
 #include <ros/package.h>
 
 using std::vector;
@@ -22,12 +25,19 @@ using std::endl;
 using std::ofstream;
 
 
+struct Model
+{
+	string uri;
+	string name;
+	double pose[6];
+};
+
 struct ModelEvent
 {
-	ModelEvent() : startTime(-1), endTime(-1), modelName("") {};
+	ModelEvent() : startTime(-1), endTime(-1) {};
 	double startTime;
 	double endTime;
-	string modelName;
+	vector<Model> models;
 };
 
 
@@ -38,14 +48,50 @@ namespace gazebo
 		public:
 			void Load(physics::WorldPtr _parent, sdf::ElementPtr /*_sdf*/)
 			{
-
 				this->world = _parent;
+				this->physicsEng = _parent->GetPhysicsEngine();
 				this->updateConnection = event::Events::ConnectWorldUpdateBegin(boost::bind(&Factory::OnUpdate, this, _1));
 
 				string packagePath = ros::package::getPath("dynamic_world");
 				string configName = packagePath + "/events/" + this->world->GetName() + "_config.xml";
 
 				Factory::LoadConfig(configName.c_str());
+
+				// make it faster, twice as fast
+				this->physicsEng->SetMaxStepSize(0.002);
+
+				// Create a new transport node
+				transport::NodePtr newNode(new transport::Node());
+				// *(this->node) = *newNode;
+
+				cout << "init done\n" << endl;
+				// Initialize the node with the world name
+				newNode->Init(_parent->GetName());
+				cout << "init done\n" << endl;
+
+				// Create a publisher on the ~/factory topic
+				this->pub = newNode->Advertise<msgs::Factory>("~/factory");
+				cout << "init done\n" << endl;
+			}
+
+			void _OnUpdate(const common::UpdateInfo &)
+			{
+				static double sim_prev = -1;
+				static double real_prev = -1;
+
+				double sim_cur = world->GetSimTime().Double();
+				double real_cur = world->GetRealTime().Double();
+
+				// only update once every little while
+				if ((sim_cur - sim_prev) > 0.1)
+				{
+					cout << "sim time ratio: " << (sim_cur - sim_prev) / (real_cur - real_prev) << endl;
+
+					sim_prev = sim_cur;
+					real_prev = real_cur;
+				}
+
+					
 			}
 
 			void OnUpdate(const common::UpdateInfo &)
@@ -55,11 +101,13 @@ namespace gazebo
 
 				static double lastUpdate = 0;
 
+				// stop at end of day
 				if (world->GetSimTime().Double() > dayDuration)
 				{
 					world->SetPaused(true);
 				}
 				
+				// somewhat hacky check for reset
 				if (lastUpdate > world->GetSimTime().Double())
 				{
 					Factory::Reset();
@@ -69,14 +117,35 @@ namespace gazebo
 
 				lastUpdate = world->GetSimTime().Double();
 
-
-
 				// start time of next event to start, -1 if no more events
 				if (nextStartEvent.startTime != -1 && world->GetSimTime().Double() >= nextStartEvent.startTime)
 				{
-					cout << "loading model `" << nextStartEvent.modelName << "` at " << world->GetSimTime().Double() << endl;
+					cout << "beginning event" << endl;
 
-					this->world->InsertModelFile("model://" + nextStartEvent.modelName);
+					for (int i = 0; i < nextStartEvent.models.size(); i++)
+					{
+						cout << "loading model `" << nextStartEvent.models[i].name << "` at " << nextStartEvent.startTime << endl;
+
+						// Create the message
+						msgs::Factory msg;
+
+						// Model file to load
+						msg.set_sdf_filename(nextStartEvent.models[i].uri);
+						// msg.set_edit_name("bookshelf", nextStartEvent.models[i].name);
+
+						double *pose = nextStartEvent.models[i].pose;
+
+						// Pose to initialize the model to
+						msgs::Set(msg.mutable_pose(), math::Pose(math::Vector3(pose[0], pose[1], pose[2]),
+						          math::Quaternion(pose[3], pose[4], pose[5])));
+
+						// Send the message
+						this->pub->Publish(msg);
+
+						// this->world->InsertModelSDF(newSDF);
+						// this->world->InsertModelFile(nextStartEvent.models[i].uri);
+					}
+					
 
 					Factory::AddEvent(this->currentEvents, nextStartEvent, Factory::SortByEnd);
 					Factory::PopEvent(this->futureEvents);
@@ -88,22 +157,29 @@ namespace gazebo
 				// start time of next event to end, -1 if no events are in progress
 				if (nextEndEvent.startTime != -1 && world->GetSimTime().Double() >= nextEndEvent.endTime)
 				{
-					cout << "deleting model `" << nextEndEvent.modelName << "` at " << world->GetSimTime().Double() << endl;
-
-					Factory::DeleteModel(nextEndEvent.modelName);
+					for (int i = 0; i < nextEndEvent.models.size(); i++)
+					{
+						cout << "deleting model `" << nextEndEvent.models[i].name << "` at " << nextEndEvent.endTime << endl;
+						Factory::DeleteModel(nextEndEvent.models[i].name);
+					}
+					
 					Factory::PopEvent(this->currentEvents);
 					nextEndEvent = Factory::GetNextEvent(this->currentEvents);
 				}
 			}
 
+			// TODO: figure out why this isn't called when reset is pressed in client
 			void Reset()
 			{
 				cout << "resetting world..." << endl;
 
 				for (int i = 0; i < this->currentEvents.size(); i++)
 				{
-					cout << "\tdeleting model `" << this->currentEvents[i].modelName << "`" << endl;
-					Factory::DeleteModel(this->currentEvents[i].modelName);
+					for (int j = 0; j < this->currentEvents[i].models.size(); j++)
+					{
+						cout << "deleting model `" << this->currentEvents[i].models[j].name << "`" << endl;
+						Factory::DeleteModel(this->currentEvents[i].models[j].name);
+					}
 				}
 
 				this->currentEvents.clear();
@@ -149,13 +225,13 @@ namespace gazebo
 
 				while (pEvent != NULL)
 				{
-					// check required attributes
 					tinyxml2::XMLElement *pStartTime = pEvent->FirstChildElement("start_time");
 					tinyxml2::XMLElement *pDuration = pEvent->FirstChildElement("duration");
-					tinyxml2::XMLElement *pModelName = pEvent->FirstChildElement("model");
+					tinyxml2::XMLElement *pModel = pEvent->FirstChildElement("model");
 					tinyxml2::XMLElement *pRepeat = pEvent->FirstChildElement("repeat");
 
-					if (pStartTime == NULL || pDuration == NULL || pModelName == NULL)
+					// check required attributes
+					if (pStartTime == NULL || pDuration == NULL || pModel == NULL)
 					{
 						cout << "error loading event attributes" << endl;
 						exit(1);
@@ -167,17 +243,47 @@ namespace gazebo
 					// load required attributes
 					Factory::CheckXML(pStartTime->QueryDoubleAttribute("value", &(newEvent.startTime)));
 					Factory::CheckXML(pDuration->QueryDoubleAttribute("value", &duration));
-					newEvent.modelName = pModelName->Attribute("name");
 
 					// duration must be positive...
 					if (duration <= 0)
 					{
-						cout << "duration must be positive (>= 0)" << endl;
+						cout << "duration must be positive" << endl;
 						exit(1);
 					}
 
 					newEvent.endTime = duration + newEvent.startTime;
 
+					// load models for event
+					while (pModel != NULL)
+					{
+						tinyxml2::XMLElement *pModelURI = pModel->FirstChildElement("uri");
+						tinyxml2::XMLElement *pModelName = pModel->FirstChildElement("name");
+						tinyxml2::XMLElement *pModelPose = pModel->FirstChildElement("pose");
+
+						// attributes are required
+						if (pModelURI == NULL || pModelName == NULL || pModelPose == NULL)
+						{
+							cout << "error loading model attributes" << endl;
+							exit(1);
+						}
+
+						Model newModel;
+
+						// load attributes
+						newModel.uri = pModelURI->Attribute("value");
+						newModel.name = pModelName->Attribute("value");
+
+						std::stringstream ss;
+						ss << pModelPose->Attribute("value");
+						ss >> newModel.pose[0] >> newModel.pose[1] >> newModel.pose[2];
+						ss >> newModel.pose[3] >> newModel.pose[4] >> newModel.pose[5];
+
+						newEvent.models.push_back(newModel);
+
+						pModel = pModel->NextSiblingElement("model");
+					}
+
+					// deal with repeated events
 					double every;
 					int times = 1;
 
@@ -193,7 +299,7 @@ namespace gazebo
 						// add to event list
 						if (newEvent.endTime > this->dayDuration)
 						{
-							cout << "event `" << newEvent.modelName << "` occurs after the end of day, ignoring..." << endl;
+							cout << "event occurs after the end of day, ignoring..." << endl;
 						}
 						else
 						{
@@ -214,7 +320,7 @@ namespace gazebo
 			{
 				if (errCode != tinyxml2::XML_SUCCESS)
 				{
-					cout << "XML parsing error:" << errCode << endl;
+					cout << "XML parsing error: " << errCode << endl;
 					exit(1);
 				}
 			}
@@ -276,8 +382,12 @@ namespace gazebo
 
 		private:
 			physics::WorldPtr world;
+			physics::PhysicsEnginePtr physicsEng;
 
 			event::ConnectionPtr updateConnection;
+
+			transport::NodePtr node;
+			transport::PublisherPtr pub;
 
 			// how long is a 'day'
 			double dayDuration;
