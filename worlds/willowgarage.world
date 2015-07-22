@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
-  <world name="default">
+  <world name="willowgarage">
     <include>
       <uri>model://ground_plane</uri>
     </include>
@@ -10,5 +10,6 @@
     <include>
       <uri>model://willowgarage</uri>
     </include>
+    <plugin name="dynamic_world" filename="libdynamic_world.so"/>
   </world>
 </sdf>
