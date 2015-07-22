@@ -1,0 +1,57 @@
+<!-- to be used with willowgarage.world -->
+<day duration="86400">
+	<!-- <event>
+		<start_time value="0"/>
+		<duration value="100"/>
+		<model name="box"/>
+	</event>
+	<event>
+		<start_time value="5"/>
+		<duration value="100"/>
+		<model name="people"/>
+	</event>
+	<event>
+		<start_time value="10"/>
+		<duration value="100"/>
+		<model name="barrel"/>
+	</event> -->
+	<!-- <event>
+		<start_time value="15"/>
+		<duration value="100"/>
+		<model name="bookshelf"/>
+	</event> -->
+	<event>
+		<start_time value="15"/>
+		<duration value="5"/>
+		<model>
+			<uri value="model://bookshelf"/>
+			<name value="bookshelf_0"/>
+			<pose value="23 28 0 0 -0 0"/>
+		</model>
+		<model>
+			<uri value="model://bookshelf"/>
+			<name value="bookshelf_1"/>
+			<pose value="23 27.5108 0 0 -0 0"/>
+		</model>
+	</event>
+	<!-- <event>
+		<start_time value="25"/>
+		<duration value="100"/>
+		<model name="fast_food"/>
+	</event>
+	<event>
+		<start_time value="30"/>
+		<duration value="100"/>
+		<model name="fire_hydrant"/>
+	</event>
+	<event>
+		<start_time value="35"/>
+		<duration value="100"/>
+		<model name="garbage"/>
+	</event>
+	<event>
+		<start_time value="40"/>
+		<duration value="100"/>
+		<model name="traffic_barrel"/>
+	</event> -->
+</day>
