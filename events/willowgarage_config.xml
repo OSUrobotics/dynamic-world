@@ -1,57 +1,86 @@
 <!-- to be used with willowgarage.world -->
-<day duration="86400">
-	<!-- <event>
+<day duration="86400" num="7">
+	<!-- spawn once an hour for 26 min, 8am - 5pm -->
+	<event>
+		<start_time value="28800"/>
+		<duration value="1600"/>
+		<model>
+			<uri value="model://jersey_barrier"/>
+			<name value="jersey_barrier"/>
+			<pose value="13.9865 16.1534 0 0 0 -1.54841"/>
+		</model>
+		<repeat times="9" every="3600"/> 
+	</event>
+	<!-- spawn once a day for 1 hour, 12 - 1pm -->
+	<!-- let's go have lunch at the dumpster... -->
+	<event>
+		<start_time value="43200"/>
+		<duration value="3600"/>
+		<model>
+			<uri value="model://dumpster"/>
+			<name value="Dumpster"/>
+			<pose value="16.5295 12.5724 0.000918 3 0 0"/>
+		</model>
+	</event>
+	<!-- spawn on the hour for 30 min, all day -->
+	<event>
 		<start_time value="0"/>
-		<duration value="100"/>
-		<model name="box"/>
-	</event>
-	<event>
-		<start_time value="5"/>
-		<duration value="100"/>
-		<model name="people"/>
-	</event>
-	<event>
-		<start_time value="10"/>
-		<duration value="100"/>
-		<model name="barrel"/>
-	</event> -->
-	<!-- <event>
-		<start_time value="15"/>
-		<duration value="100"/>
-		<model name="bookshelf"/>
-	</event> -->
-	<event>
-		<start_time value="15"/>
-		<duration value="5"/>
+		<duration value="1800"/>
 		<model>
 			<uri value="model://bookshelf"/>
-			<name value="bookshelf_0"/>
-			<pose value="23 28 0 0 -0 0"/>
+			<name value="bookshelf"/>
+			<pose value="22.9837 28.3663 0 0 -0 1.59174"/>
 		</model>
+		<repeat times="-1" every="3600"/>
+	</event>
+	<event>
+		<start_time value="15000"/>
+		<duration value="1300"/>
 		<model>
-			<uri value="model://bookshelf"/>
-			<name value="bookshelf_1"/>
-			<pose value="23 27.5108 0 0 -0 0"/>
+			<uri value="model://construction_barrel"/>
+			<name value="Construction Barrel"/>
+			<pose value="22.3768 14.7292 -0 0 -0 -0.000917"/>
 		</model>
-	</event>
-	<!-- <event>
-		<start_time value="25"/>
-		<duration value="100"/>
-		<model name="fast_food"/>
+		<repeat times="13" every="2800"/>
 	</event>
 	<event>
-		<start_time value="30"/>
-		<duration value="100"/>
-		<model name="fire_hydrant"/>
+		<start_time value="30000"/>
+		<duration value="1800"/>
+		<model>
+			<uri value="model://construction_cone"/>
+			<name value="Construction Cone"/>
+			<pose value="12.5972 14.5637 -0 0 -1e-06 0"/>
+		</model>
+		<repeat times="9" every="4900"/>
 	</event>
 	<event>
-		<start_time value="35"/>
-		<duration value="100"/>
-		<model name="garbage"/>
+		<start_time value="10000"/>
+		<duration value="2000"/>
+		<model>
+			<uri value="model://fire_hydrant"/>
+			<name value="fire_hydrant"/>
+			<pose value="23.9278 16.7967 0 0 -0 0"/>
+		</model>
+		<repeat times="5" every="3600"/>
 	</event>
 	<event>
-		<start_time value="40"/>
-		<duration value="100"/>
-		<model name="traffic_barrel"/>
-	</event> -->
+		<start_time value="22000"/>
+		<duration value="2654"/>
+		<model>
+			<uri value="model://cabinet"/>
+			<name value="cabinet"/>
+			<pose value="6.55134 21 0 0 -0 0"/>
+		</model>
+		<repeat times="15" every="3546"/>
+	</event>
+	<event>
+		<start_time value="42000"/>
+		<duration value="1123"/>
+		<model>
+			<uri value="model://cube_20k"/>
+			<name value="cube_20k"/>
+			<pose value="8 28.4433 -0 -0 -0 -2e-06"/>
+		</model>
+		<repeat times="7" every="3762"/>	
+	</event>
 </day>

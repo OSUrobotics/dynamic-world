@@ -1,19 +1,17 @@
 <?xml version='1.0'?>
 <sdf version ='1.4'>
-  <model name ='box'>
-    <pose>1 2 0 0 0 0</pose>
-    <link name ='link'>
-      <pose>0 0 .5 0 0 0</pose>
-      <collision name ='collision'>
-        <geometry>
-          <box><size>1 1 1</size></box>
-        </geometry>
-      </collision>
-      <visual name ='visual'>
-        <geometry>
-          <box><size>1 1 1</size></box>
-        </geometry>
-      </visual>
+	<include>
+		<uri>model://cube_20k</uri>
+		<name>box</name>
+		<pose>10 21 0 0 -0 0</pose>
+	</include>
+  <!-- <model name='cube_20k'>
+    <pose>10 21 0 0 -0 0</pose>
+    <link name='link'>
+      <pose>10 21 0.5 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
     </link>
-  </model>
+  </model> -->
 </sdf>

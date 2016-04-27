@@ -25,6 +25,8 @@ using std::endl;
 using std::ofstream;
 
 
+#define INF_REPEAT -1
+
 struct Model
 {
 	string uri;
@@ -64,14 +66,14 @@ namespace gazebo
 				transport::NodePtr newNode(new transport::Node());
 				// *(this->node) = *newNode;
 
-				cout << "init done\n" << endl;
+				// cout << "init done\n" << endl;
 				// Initialize the node with the world name
 				newNode->Init(_parent->GetName());
-				cout << "init done\n" << endl;
+				// cout << "init done\n" << endl;
 
 				// Create a publisher on the ~/factory topic
 				this->pub = newNode->Advertise<msgs::Factory>("~/factory");
-				cout << "init done\n" << endl;
+				// cout << "init done\n" << endl;
 			}
 
 			void _OnUpdate(const common::UpdateInfo &)
@@ -102,9 +104,20 @@ namespace gazebo
 				static double lastUpdate = 0;
 
 				// stop at end of day
-				if (world->GetSimTime().Double() > dayDuration)
+				if (world->GetSimTime().Double() > dayDuration * (this->curDay + 1))
 				{
-					world->SetPaused(true);
+					// reset at beginning of day, pause at end of week
+					if (++(this->curDay) < this->weekDuration)
+					{
+						cout << "Good Morning Gazebo!! Starting day " << this->curDay + 1 << endl;
+						Factory::NewDay();
+						nextStartEvent = Factory::GetNextEvent(this->futureEvents);
+						nextEndEvent = Factory::GetNextEvent(this->currentEvents);
+					}
+					else
+					{
+						world->SetPaused(true);
+					}
 				}
 				
 				// somewhat hacky check for reset
@@ -191,6 +204,34 @@ namespace gazebo
 				}
 			}
 
+			// TODO: make this not just a copy-pasted Reset() call...
+			void NewDay()
+			{
+				cout << "resetting world..." << endl;
+
+				for (int i = 0; i < this->currentEvents.size(); i++)
+				{
+					for (int j = 0; j < this->currentEvents[i].models.size(); j++)
+					{
+						cout << "deleting model `" << this->currentEvents[i].models[j].name << "`" << endl;
+						Factory::DeleteModel(this->currentEvents[i].models[j].name);
+					}
+				}
+
+				this->currentEvents.clear();
+				this->futureEvents.clear();
+
+				// reset events with times shifted to accomodate new day
+				for (int i = 0; i < this->modelEvents.size(); i++)
+				{
+					ModelEvent nextDayEvent = this->modelEvents[i];
+					nextDayEvent.startTime += this->curDay * this->dayDuration;
+					nextDayEvent.endTime += this->curDay * this->dayDuration;
+					cout << "resetting model, new time " << nextDayEvent.startTime << endl;
+					Factory::AddEvent(this->futureEvents, nextDayEvent, Factory::SortByStart);
+				}
+			}
+
 			// loads config from XML
 			void LoadConfig(const char *filename)
 			{
@@ -219,6 +260,8 @@ namespace gazebo
 
 				// get length of day
 				Factory::CheckXML(pRoot->QueryDoubleAttribute("duration", &(this->dayDuration)));
+				Factory::CheckXML(pRoot->QueryIntAttribute("num", &(this->weekDuration)));
+				this->curDay = 0;
 
 				// loop through events and add to event list
 				tinyxml2::XMLElement *pEvent = pRoot->FirstChildElement("event");
@@ -278,6 +321,12 @@ namespace gazebo
 						ss >> newModel.pose[0] >> newModel.pose[1] >> newModel.pose[2];
 						ss >> newModel.pose[3] >> newModel.pose[4] >> newModel.pose[5];
 
+						// hack-iest fix ever...
+						// Gazebo appears to have a bug that loads the map model
+						// offset by 17 in both x and y
+						newModel.pose[0] -= 17;
+						newModel.pose[1] -= 17;
+
 						newEvent.models.push_back(newModel);
 
 						pModel = pModel->NextSiblingElement("model");
@@ -294,12 +343,14 @@ namespace gazebo
 						Factory::CheckXML(pRepeat->QueryDoubleAttribute("every", &every));
 					}
 
-					for (int i = 0; i < times; i++)
+					// if repeat set to INF_REPEAT, repeat until end of day
+					for (int i = 0; i < times || times == INF_REPEAT; i++)
 					{
 						// add to event list
 						if (newEvent.endTime > this->dayDuration)
 						{
 							cout << "event occurs after the end of day, ignoring..." << endl;
+							break;
 						}
 						else
 						{
@@ -389,8 +440,11 @@ namespace gazebo
 			transport::NodePtr node;
 			transport::PublisherPtr pub;
 
-			// how long is a 'day'
+			// how long is a day, in seconds
 			double dayDuration;
+			// how long is a week, in days
+			int weekDuration;
+			int curDay;
 
 			// list of all events, used to initialize
 			// future events at day start
