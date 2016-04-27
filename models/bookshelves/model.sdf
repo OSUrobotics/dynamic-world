@@ -1,0 +1,31 @@
+<?xml version='1.0'?>
+<sdf version ='1.4'>
+  <include>
+    <uri>model://bookshelf</uri>
+    <name>bookshelf_0</name>
+    <pose>23 28 0 0 -0 0</pose>
+  </include>
+  <include>
+    <uri>model://bookshelf</uri>
+    <name>bookshelf_1</name>
+    <pose>23 27.5108 0 0 -0 0</pose>
+  </include>
+  <!-- <model name='bookshelf'>
+    <pose>23 28 0 0 -0 0</pose>
+    <link name='link'>
+      <pose>23 28 0 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link>
+  </model>
+  <model name='bookshelf_0'>
+    <pose>23 27.5108 0 0 -0 0</pose>
+    <link name='link'>
+      <pose>23 27.5108 0 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link>
+  </model> -->
+</sdf>

@@ -1,0 +1,88 @@
+<?xml version='1.0'?>
+<sdf version ='1.4'>
+  <model name='Construction Cone'>
+    <pose>15.4856 19 0 0 -0 0</pose>
+    <!-- <link name='link_0'>
+      <pose>15.4856 19 0 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link> -->
+    <link name ='link'>
+      <pose>0 0 .5 0 0 0</pose>
+      <collision name ='collision'>
+        <geometry>
+          <cylinder><radius>0.5</radius><length>1</length></cylinder>
+        </geometry>
+      </collision>
+      <visual name='visual'>
+        <geometry>
+          <cylinder><radius>0.5</radius><length>1</length></cylinder>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+  <!-- <model name='Construction Cone_0'>
+    <pose>16 18 0 0 -0 0</pose>
+    <link name='link_1'>
+      <pose>16 18 0 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link>
+  </model>
+  <model name='Construction Cone_1'>
+    <pose>15 17 0 0 -0 0</pose>
+    <link name='link_2'>
+      <pose>15 17 0 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link>
+  </model>
+  <model name='Construction Cone_2'>
+    <pose>16 17 0 0 -0 0</pose>
+    <link name='link_3'>
+      <pose>16 17 0 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link>
+  </model>
+  <model name='Construction Cone_3'>
+    <pose>16 16 0 0 -0 0</pose>
+    <link name='link_4'>
+      <pose>16 16 0 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link>
+  </model>
+  <model name='Construction Cone_4'>
+    <pose>16 20 0 0 -0 0</pose>
+    <link name='link_5'>
+      <pose>16 20 0 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link>
+  </model>
+  <model name='Construction Cone_5'>
+    <pose>15 15 0 0 -0 0</pose>
+    <link name='link_6'>
+      <pose>15 15 0 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link>
+  </model>
+  <model name='Construction Cone_6'>
+    <pose>16 20.4105 0 0 -0 0</pose>
+    <link name='link_7'>
+      <pose>16 20.4105 0 0 -0 0</pose>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link>
+  </model> -->
+</sdf>
